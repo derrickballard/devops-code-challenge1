@@ -1,23 +1,28 @@
-import React, { useEffect, useState } from 'react'
+
+import React, { useEffect, useState } from 'react';
 import './App.css';
-import API_URL from './config'
+import config from './config';
 
 function App() {
-  const [successMessage, setSuccessMessage] = useState() 
-  const [failureMessage, setFailureMessage] = useState() 
+  const [successMessage, setSuccessMessage] = useState();
+  const [failureMessage, setFailureMessage] = useState();
 
   useEffect(() => {
     const getId = async () => {
       try {
-        const resp = await fetch(API_URL)
-        setSuccessMessage((await resp.json()).id)
+        const resp = await fetch(config.backendUrl);
+        if (!resp.ok) {
+          throw new Error(`HTTP error: ${resp.status}`);
+        }
+        const data = await resp.json();
+        setSuccessMessage(data.message);
+      } catch (e) {
+        setFailureMessage(e.message);
       }
-      catch(e) {
-        setFailureMessage(e.message)
-      }
-    }
-    getId()
-  })
+    };
+
+    getId();
+  }, []);
 
   return (
     <div className="App">

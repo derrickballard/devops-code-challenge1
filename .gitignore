@@ -1,1 +1,25 @@
 node_modules/
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+
+# SSH private keys
+*.pem
+*.key
+
+# Environment files
+.env
+.env.*
+
+# macOS
+.DS_Store# 
+Terraform saved execution plans
+# Terraform saved execution plans
+**/tfplan
+**/*.tfplan
