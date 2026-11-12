@@ -1,0 +1,16 @@
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Verify Environment') {
+            steps {
+                echo 'Starting DevOps deployment pipeline'
+                sh 'whoami'
+                sh 'docker --version'
+                sh 'aws --version'
+                sh 'git --version'
+            }
+        }
+    }
+}
