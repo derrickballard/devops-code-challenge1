@@ -32,4 +32,14 @@ pipeline {
             }
         }
     }
+stage('Tag Docker Images for ECR') {
+    steps {
+        echo 'Tagging frontend Docker image'
+        sh 'docker tag devops-code-challenge1-frontend:test 482681396167.dkr.ecr.us-east-2.amazonaws.com/devops-code-challenge1-frontend:latest'
+
+        echo 'Tagging backend Docker image'
+        sh 'docker tag devops-code-challenge1-backend:test 482681396167.dkr.ecr.us-east-2.amazonaws.com/devops-code-challenge1-backend:latest'
+    }
+}
+
 }
