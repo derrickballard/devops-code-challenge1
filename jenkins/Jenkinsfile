@@ -12,5 +12,12 @@ pipeline {
                 sh 'git --version'
             }
         }
+    
+stage('Build Frontend Docker Image') {
+    steps {
+        echo 'Building frontend Docker image'
+        sh 'docker build -t devops-code-challenge1-frontend:test ./frontend'
     }
+}
+}
 }
