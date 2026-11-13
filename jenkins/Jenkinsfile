@@ -1,3 +1,4 @@
+
 pipeline {
     agent any
 
@@ -19,27 +20,28 @@ pipeline {
             }
         }
 
-                stage('Build Backend Docker Image') {
+        stage('Build Backend Docker Image') {
             steps {
                 echo 'Building backend Docker image'
                 sh 'docker build -t devops-code-challenge1-backend:test ./backend'
             }
         }
+
         stage('Login to Amazon ECR') {
             steps {
                 echo 'Authenticating Docker with Amazon ECR'
                 sh 'aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 482681396167.dkr.ecr.us-east-2.amazonaws.com'
             }
         }
-    }
-stage('Tag Docker Images for ECR') {
-    steps {
-        echo 'Tagging frontend Docker image'
-        sh 'docker tag devops-code-challenge1-frontend:test 482681396167.dkr.ecr.us-east-2.amazonaws.com/devops-code-challenge1-frontend:latest'
 
-        echo 'Tagging backend Docker image'
-        sh 'docker tag devops-code-challenge1-backend:test 482681396167.dkr.ecr.us-east-2.amazonaws.com/devops-code-challenge1-backend:latest'
-    }
-}
+        stage('Tag Docker Images for ECR') {
+            steps {
+                echo 'Tagging frontend Docker image'
+                sh 'docker tag devops-code-challenge1-frontend:test 482681396167.dkr.ecr.us-east-2.amazonaws.com/devops-code-challenge1-frontend:latest'
 
+                echo 'Tagging backend Docker image'
+                sh 'docker tag devops-code-challenge1-backend:test 482681396167.dkr.ecr.us-east-2.amazonaws.com/devops-code-challenge1-backend:latest'
+            }
+        }
+    }
 }
