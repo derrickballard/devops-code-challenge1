@@ -52,5 +52,18 @@ pipeline {
                 sh 'docker push 482681396167.dkr.ecr.us-east-2.amazonaws.com/devops-code-challenge1-backend:latest'
             }
         }
-    }
+            stage('Verify ECS Services') {
+            steps {
+                echo 'Checking ECS frontend and backend services'
+
+                sh '''
+                    aws ecs describe-services \
+                      --cluster devops-code-challenge1-cluster \
+                      --services devops-code-challenge1-frontend-service devops-code-challenge1-backend-service \
+                      --region us-east-2 \
+                      --query 'services[].{Service:serviceName,Status:status,Running:runningCount,Desired:desiredCount}' \
+                      --output table
+                '''
+            }
+        }}
 }
