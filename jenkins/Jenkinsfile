@@ -19,10 +19,16 @@ pipeline {
             }
         }
 
-        stage('Build Backend Docker Image') {
+                stage('Build Backend Docker Image') {
             steps {
                 echo 'Building backend Docker image'
                 sh 'docker build -t devops-code-challenge1-backend:test ./backend'
+            }
+        }
+        stage('Login to Amazon ECR') {
+            steps {
+                echo 'Authenticating Docker with Amazon ECR'
+                sh 'aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 482681396167.dkr.ecr.us-east-2.amazonaws.com'
             }
         }
     }
