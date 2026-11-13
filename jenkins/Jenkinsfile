@@ -43,5 +43,14 @@ pipeline {
                 sh 'docker tag devops-code-challenge1-backend:test 482681396167.dkr.ecr.us-east-2.amazonaws.com/devops-code-challenge1-backend:latest'
             }
         }
+        stage('Push Docker Images to ECR') {
+            steps {
+                echo 'Pushing frontend Docker image to Amazon ECR'
+                sh 'docker push 482681396167.dkr.ecr.us-east-2.amazonaws.com/devops-code-challenge1-frontend:latest'
+
+                echo 'Pushing backend Docker image to Amazon ECR'
+                sh 'docker push 482681396167.dkr.ecr.us-east-2.amazonaws.com/devops-code-challenge1-backend:latest'
+            }
+        }
     }
 }
