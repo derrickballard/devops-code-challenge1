@@ -63,8 +63,96 @@ pipeline {
                         --region us-east-2 \
                         --query 'services[].{Service:serviceName,Status:status,Running:runningCount,Desired:desiredCount}' \
                         --output table
-                '''
-            }
+                   '''
+    }
+}
+
+stage('Deploy to ECS Fargate') {
+    steps {
+        echo 'Deploying new Docker images to ECS Fargate'
+
+        sh '''
+            set -e
+
+            python3 - <<'PY'
+import json
+import subprocess
+
+region = "us-east-2"
+cluster = "devops-code-challenge1-cluster"
+account = "482681396167"
+build = "${BUILD_NUMBER}"
+
+for component in ["frontend", "backend"]:
+    family = f"devops-code-challenge1-{component}"
+    service = f"{family}-service"
+    image = (
+        f"{account}.dkr.ecr.{region}.amazonaws.com/"
+        f"{family}:latest"
+    )
+
+    def aws(*args):
+        return subprocess.check_output(
+            ["aws", *args, "--region", region],
+            text=True
+        )
+
+    current = json.loads(aws(
+        "ecs", "describe-task-definition",
+        "--task-definition", family,
+        "--query", "taskDefinition"
+    ))
+
+    allowed = [
+        "family", "taskRoleArn", "executionRoleArn",
+        "networkMode", "containerDefinitions",
+        "volumes", "placementConstraints",
+        "requiresCompatibilities", "cpu", "memory",
+        "runtimePlatform", "ephemeralStorage",
+        "proxyConfiguration", "ipcMode", "pidMode"
+    ]
+
+    updated = {
+        key: current[key]
+        for key in allowed
+        if key in current
+    }
+
+    for container in updated["containerDefinitions"]:
+        if container["name"] == component:
+            container["image"] = image
+
+    with open(f"/tmp/{component}-task.json", "w") as file:
+        json.dump(updated, file)
+
+    revision = json.loads(aws(
+        "ecs", "register-task-definition",
+        "--cli-input-json",
+        f"file:///tmp/{component}-task.json"
+    ))["taskDefinition"]["taskDefinitionArn"]
+
+    print(f"Deploying {component}: {revision}", flush=True)
+
+    aws(
+        "ecs", "update-service",
+        "--cluster", cluster,
+        "--service", service,
+        "--task-definition", revision
+    )
+
+aws(
+    "ecs", "wait", "services-stable",
+    "--cluster", cluster,
+    "--services",
+    "devops-code-challenge1-frontend-service",
+    "devops-code-challenge1-backend-service"
+)
+
+print("Both ECS services are stable.", flush=True)
+PY
+        '''
+    }
+}
         }
     }
 }

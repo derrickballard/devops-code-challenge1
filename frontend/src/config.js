@@ -1,4 +1,5 @@
 const config = {
-  backendUrl: "http://host.docker.internal:8080",
+  backendUrl: "/api/",
 };
+
 export default config;
